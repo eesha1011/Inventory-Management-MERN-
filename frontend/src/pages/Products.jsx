@@ -1,12 +1,55 @@
 import DashboardLayout from "../layouts/DashboardLayout";
 import ProductList from "../components/ProductsList";
 import AddProductModal from "../components/AddProductModal";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import PageHeader from "../components/PageHeader";
+import { SearchContext } from "../context/SearchContext";
 
 const Products = () => {
 
+    const [products, setProducts] = useState(() => {
+        const saved = localStorage.getItem("products");
+        return saved ? JSON.parse(saved) : []; 
+    });
+
     const [open, setOpen] = useState(false);
+    
+    const [editIndex, setEditIndex] = useState(null);
+
+    const {search} = useContext(SearchContext);
+
+    const addProduct = (newProduct) => {
+        const updated = [...products, newProduct];
+        setProducts(updated);
+        localStorage.setItem("products", JSON.stringify(updated));
+        setOpen(false);
+    };
+
+    const deleteProduct = (indexToDelete) => {
+        const updatedProcducts = products.filter(
+            (_, index) => index !== indexToDelete
+        );
+        setProducts(updatedProcducts);
+        localStorage.setItem("products", JSON.stringify(updatedProcducts));
+    }
+
+    const editProduct = (index) => {
+        setEditIndex(index);
+        setOpen(true);
+    }
+
+    const updateProduct = (updatedProcduct) => {
+        const updatedProcducts = products.map((p, i) => i === editIndex ? updatedProcduct : p);
+        setProducts(updatedProcducts);
+        localStorage.setItem("products", JSON.stringify(updatedProcducts));
+        setEditIndex(null);
+        setOpen(false);
+    }
+
+    const filteredProducts = products.filter(product =>
+        product.name.toLowerCase().includes(search.toLowerCase()) ||
+        product.category.toLowerCase().includes(search.toLowerCase())
+    )
 
     return (
         <DashboardLayout>
@@ -19,10 +62,17 @@ const Products = () => {
                 
             {/* </div> */}
 
-            <ProductList/>
+            <ProductList products={filteredProducts} onDelete={deleteProduct} onEdit={editProduct}/>
 
             {open && (
-                <AddProductModal onclose={() => setOpen(false)}/>
+                <AddProductModal 
+                    onclose={() => {
+                        setOpen(false);
+                        setEditIndex(null);
+                    }}
+                    onAdd={addProduct}
+                    onUpdate={updateProduct}
+                    initialData={editIndex !== null ? products[editIndex] : null} />
             )}
         </DashboardLayout>
     )

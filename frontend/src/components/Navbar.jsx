@@ -1,15 +1,17 @@
 import { useContext } from "react";
+import { SearchContext } from "../context/SearchContext";
 import { ThemeContext } from "../context/ThemeContext";
 import { Sun, Moon } from "lucide-react";
 
 const Navbar = () => {
 
+    const {search, setSearch} = useContext(SearchContext);
     const {theme, toggleTheme} = useContext(ThemeContext);
 
     return (
         <div className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6">
-            {/* Search */}
-            <input type="text" placeholder="Search..." className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded px-3 py-1 w-64 focus:outline-none focus:ring" />
+            {/*Global Search (for users, products, etc.) */}
+            <input type="text" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded px-3 py-1 w-64 focus:outline-none focus:ring" />
 
             {/* Right side */}
             <div className="flex items-center gap-4">
