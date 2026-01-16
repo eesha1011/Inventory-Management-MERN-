@@ -3,6 +3,7 @@ import PageHeader from "../components/PageHeader";
 import UserEditModal from "../components/users/UserEditModal";
 import UsersTable from "../components/users/UsersTable";
 import DashboardLayout from "../layouts/DashboardLayout";
+import ConfirmModal from "../components/ConfirmModal";
 
 
 const initialUsers = [
@@ -19,6 +20,9 @@ const Users = () => {
     
     const [editUser, setEditUser] = useState(null);
     const [showModal, setShowModal] = useState(false);
+
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [selectedUserId, setSelectedUserId] = useState(null);
 
     useEffect(() => {
         localStorage.setItem("users", JSON.stringify(users));
@@ -39,8 +43,19 @@ const Users = () => {
         setUsers(users.map(u => u.id === id ? {...u, status: u.status === "Active" ? "Blocked" : "Active"} : u));
     }
 
-    const handleDelete = (id) => {
-        setUsers(users.filter(u => u.id !== id));
+    // const handleDelete = (id) => {
+    //     setUsers(users.filter(u => u.id !== id));
+    // }
+
+    const handleDeleteClick = (id) => {
+        setSelectedUserId(id);
+        setShowConfirm(true);
+    }
+
+    const confirmDelete = () => {
+        setUsers(users.filter(u => u.id !== selectedUserId));
+        setShowConfirm(false);
+        setSelectedUserId(null);
     }
 
     return (
@@ -48,12 +63,16 @@ const Users = () => {
             <PageHeader title={"Users"} action={
                 <button onClick={() => {setEditUser(null); setShowModal(true);}} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 cursor-pointer" >+ Add User</button>
             }/>
-            <UsersTable users={users} onEdit={user => {setEditUser(user); setShowModal(true);}} onToggleStatus={handleToggleStatus} onDelete={handleDelete} />
+            <UsersTable users={users} onEdit={user => {setEditUser(user); setShowModal(true);}} onToggleStatus={handleToggleStatus} onDelete={handleDeleteClick} />
             
             {showModal && (
                 <UserEditModal 
                 initialData={editUser}
                 onSave={handleSaveUser} onClose={() => setShowModal(false)} />
+            )}
+
+            {showConfirm && (
+                <ConfirmModal title={"Delete User"} message={"Are you sure you want to delete this user?"} onConfirm={confirmDelete} onCancel={() => setShowConfirm(false)} />
             )}
         </DashboardLayout>
     )

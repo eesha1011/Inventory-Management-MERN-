@@ -2,9 +2,29 @@ import { useContext } from "react";
 import EmptyState from "../EmptyState";
 import UserRow from "./UserRow";
 import { SearchContext } from "../../context/SearchContext";
+import Table from "../common/Table";
 
 
 const UsersTable = ({users, onEdit, onToggleStatus, onDelete}) => {
+
+    const {search} = useContext(SearchContext);
+    
+    const safeSearch = search?.trim().toLowerCase() || "";
+    
+    const filteredUsers = safeSearch === "" ? users : users.filter(
+        user => user.name.toLowerCase().includes(safeSearch) ||
+        user.email.toLowerCase().includes(safeSearch)
+    );
+
+    if(!filteredUsers || filteredUsers.length === 0) {
+        return <EmptyState title={"No users found"}/>
+    }
+    const columns = [
+        {key: "name", label: "Name"},
+        {key: "email", label: "Email"},
+        {key: "role", label: "Role"},
+        {key: "status", label: "Status"},
+    ]
 
     // console.log("UsersTable users:", users);
 
@@ -12,17 +32,23 @@ const UsersTable = ({users, onEdit, onToggleStatus, onDelete}) => {
 
     // const [search, setSearch] = useState("");
 
-    const {search} = useContext(SearchContext);
 
     // console.log("SEARCH VALUE 👉", JSON.stringify(search));
     // console.log("SEARCH LENGTH 👉", search?.length);
 
-    const safeSearch = search?.trim().toLowerCase() || "";
-
-    const filteredUsers = safeSearch === "" ? users : users.filter(
-        user => user.name.toLowerCase().includes(safeSearch) ||
-        user.email.toLowerCase().includes(safeSearch)
-    );
+    return (
+        <Table 
+            columns={columns}
+            data={filteredUsers}
+            renderActions={(user) => (
+                <>
+                    <button onClick={() => onEdit(user)} className="text-blue-600 dark:text-blue-400 cursor-pointer hover:underline">Edit</button>
+                    <button onClick={() => onToggleStatus(user.id)} className="text-sm text-yellow-600 dark:text-yellow-400 cursor-pointer hover:underline">{user.status === "Active" ? "Block" : "Unblock"}</button>
+                    <button onClick={() => onDelete(user.id)} className="text-red-600 dark:text-red-400 cursor-pointer hover:underline">Delete</button>
+                </>
+            )}
+        />
+    )
 
     // const addUser = (user) => {
     //     setUsers([...users, user]);
@@ -48,32 +74,32 @@ const UsersTable = ({users, onEdit, onToggleStatus, onDelete}) => {
 
     // console.log("RENDER CHECK USERS 👉", users);
 
-    return ( 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
-            {filteredUsers.length === 0 ? (
-                <EmptyState title={"No users found"}/>
-            ) : (
-                <table className="min-w-full text-sm">
-                    <thead className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                        <tr>
-                            <th className="px-4 py-3 text-left">Name</th>
-                            <th className="px-4 py-3 text-left">Email</th>
-                            <th className="px-4 py-3 text-left">Role</th>
-                            <th className="px-4 py-3 text-left">Status</th>
-                            <th className="px-4 py-3 text-left">Actions</th>
-                        </tr>
-                    </thead>
+    // return ( 
+    //     <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-x-auto">
+    //         {filteredUsers.length === 0 ? (
+    //             <EmptyState title={"No users found"}/>
+    //         ) : (
+    //             <table className="min-w-full text-sm">
+    //                 <thead className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+    //                     <tr>
+    //                         <th className="px-4 py-3 text-left">Name</th>
+    //                         <th className="px-4 py-3 text-left">Email</th>
+    //                         <th className="px-4 py-3 text-left">Role</th>
+    //                         <th className="px-4 py-3 text-left">Status</th>
+    //                         <th className="px-4 py-3 text-left">Actions</th>
+    //                     </tr>
+    //                 </thead>
 
-                    <tbody>
-                        {(filteredUsers ?? users).map(user => (
-                            <UserRow key={user.id} user={user} onToggleStatus={onToggleStatus} onDelete={onDelete} onEdit={() => onEdit(user)}/>
-                        ))}
-                    </tbody>
-                </table>
-            )}
-        </div>
+    //                 <tbody>
+    //                     {(filteredUsers ?? users).map(user => (
+    //                         <UserRow key={user.id} user={user} onToggleStatus={onToggleStatus} onDelete={onDelete} onEdit={() => onEdit(user)}/>
+    //                     ))}
+    //                 </tbody>
+    //             </table>
+    //         )}
+    //     </div>
 
-    )
+    // )
 }
 
 export default UsersTable;

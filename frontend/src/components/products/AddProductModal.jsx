@@ -23,7 +23,7 @@ const AddProductModal = ({onclose, onAdd, onUpdate, initialData}) => {
         e.preventDefault();
         
         if(initialData){
-            onUpdate(form);
+            onUpdate({...form, id: initialData.id});
         } else {
             onAdd(form);
             // setForm({

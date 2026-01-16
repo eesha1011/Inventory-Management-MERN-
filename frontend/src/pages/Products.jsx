@@ -1,9 +1,10 @@
 import DashboardLayout from "../layouts/DashboardLayout";
-import ProductList from "../components/ProductsList";
-import AddProductModal from "../components/AddProductModal";
+import ProductList from "../components/products/ProductsList";
+import AddProductModal from "../components/products/AddProductModal";
 import { useContext, useState } from "react";
 import PageHeader from "../components/PageHeader";
 import { SearchContext } from "../context/SearchContext";
+import ConfirmModal from "../components/ConfirmModal";
 
 const Products = () => {
 
@@ -14,35 +15,49 @@ const Products = () => {
 
     const [open, setOpen] = useState(false);
     
-    const [editIndex, setEditIndex] = useState(null);
+    const [editId, setEditId] = useState(null);
+
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [selectedId, setSelectedId] = useState(null);
 
     const {search} = useContext(SearchContext);
 
     const addProduct = (newProduct) => {
-        const updated = [...products, newProduct];
+        const updated = [...products, {...newProduct, id: Date.now()}];
         setProducts(updated);
         localStorage.setItem("products", JSON.stringify(updated));
         setOpen(false);
     };
 
-    const deleteProduct = (indexToDelete) => {
-        const updatedProcducts = products.filter(
-            (_, index) => index !== indexToDelete
-        );
+    const deleteProduct = (id) => {
+        const updatedProcducts = products.filter(p => p.id !== id);
         setProducts(updatedProcducts);
         localStorage.setItem("products", JSON.stringify(updatedProcducts));
     }
 
-    const editProduct = (index) => {
-        setEditIndex(index);
+    const handleDeleteClick = (id) => {
+        setSelectedId(id);
+        setShowConfirm(true);
+    }
+
+    const confirmDelete = () => {
+        deleteProduct(selectedId);
+        setShowConfirm(false);
+        setSelectedId(null);
+    }
+
+    const editProduct = (id) => {
+        setEditId(id);
         setOpen(true);
     }
 
+    const productToEdit = products.find(p => p.id === editId);
+
     const updateProduct = (updatedProcduct) => {
-        const updatedProcducts = products.map((p, i) => i === editIndex ? updatedProcduct : p);
+        const updatedProcducts = products.map(p => p.id === editId ? updatedProcduct : p);
         setProducts(updatedProcducts);
         localStorage.setItem("products", JSON.stringify(updatedProcducts));
-        setEditIndex(null);
+        setEditId(null);
         setOpen(false);
     }
 
@@ -62,17 +77,21 @@ const Products = () => {
                 
             {/* </div> */}
 
-            <ProductList products={filteredProducts} onDelete={deleteProduct} onEdit={editProduct}/>
+            <ProductList products={filteredProducts} onDelete={handleDeleteClick} onEdit={editProduct}/>
 
             {open && (
                 <AddProductModal 
                     onclose={() => {
                         setOpen(false);
-                        setEditIndex(null);
+                        setEditId(null);
                     }}
                     onAdd={addProduct}
                     onUpdate={updateProduct}
-                    initialData={editIndex !== null ? products[editIndex] : null} />
+                    initialData={productToEdit} />
+            )}
+
+            {showConfirm && (
+                <ConfirmModal title={"Delete Product"} message={"Are you sure you want to delete this product?"} onConfirm={confirmDelete} onCancel={() => setShowConfirm(false)} />
             )}
         </DashboardLayout>
     )
