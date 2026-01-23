@@ -7,28 +7,36 @@ import Expenses from './pages/Expenses'
 import Settings from './pages/Settings'
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
+import Login from './pages/Login'
 
 function App() {
 
   return (
-    <AuthProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
         <Routes>
-          <Route path='/' element={<Dashboard/>}/>
+          <Route path='login' element={<Login/>}/>
+          <Route path='/' element={<ProtectedRoute allowedRoles={["Admin", "User"]}>
+            <Dashboard/>
+          </ProtectedRoute>}/>
           <Route path='/inventory' element={<ProtectedRoute allowedRoles={["Admin"]}>
             <Inventory/>
           </ProtectedRoute>}/>
-          <Route path='/products' element={<Products/>}/>
+          <Route path='/products' element={<ProtectedRoute allowedRoles={["Admin", "User"]}>
+            <Products/>
+          </ProtectedRoute>}/>
           <Route path='/users' element={<ProtectedRoute allowedRoles={["Admin"]}>
             <Users/>
           </ProtectedRoute>}/>
           <Route path='/expenses' element={<ProtectedRoute allowedRoles={["Admin"]}>
             <Expenses/>
           </ProtectedRoute>}/>
-          <Route path='/settings' element={<Settings/>}/>
+          <Route path='/settings' element={<ProtectedRoute allowedRoles={["Admin", "User"]}>
+            <Settings/>
+          </ProtectedRoute>}/>
         </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
     
   )
 }

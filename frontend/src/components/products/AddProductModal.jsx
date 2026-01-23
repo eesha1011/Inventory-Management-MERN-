@@ -44,7 +44,7 @@ const AddProductModal = ({onclose, onAdd, onUpdate, initialData}) => {
     }
 
     return (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-md p-6">
                 <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">{initialData ? "Edit Product" : "Add Product"}</h3>
 

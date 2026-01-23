@@ -3,6 +3,7 @@ import { SearchContext } from "../context/SearchContext";
 import { ThemeContext } from "../context/ThemeContext";
 import { Sun, Moon, Menu, Search } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 
 const Navbar = ({onMenuclick}) => {
 
@@ -38,14 +39,22 @@ const Navbar = ({onMenuclick}) => {
 
                 {/* Profile */}
                 <div className="flex items-center gap-2 cursor-pointer">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                        {user?.name}
-                    </span>
+                    {user ? (
+                        <>
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                                {user?.name}
+                            </span>
+                            <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 dark:text-gray-200 flex items-center justify-center">
+                                {user?.role?.charAt(0)}
+                            </div>
+                            <button onClick={logout} className="text-sm text-white font-semibold rounded p-1.5 cursor-pointer bg-red-400 hover:bg-red-500">Logout</button>
+                        </>
+                    ) : (
+                        <Link to={"/login"} className="text-sm text-white font-semibold rounded p-1.5 cursor-pointer bg-blue-600 hover:bg-blue-500">Login</Link>
+                    )}
                     {/* <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                         {user?.role === "Admin" ? "A" : "U"}
                     </span> */}
-                    <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 dark:text-gray-200 flex items-center justify-center">{user?.role?.charAt(0)}</div>
-                    <button onClick={logout} className="text-sm text-white font-semibold rounded p-1.5 cursor-pointer bg-red-400 hover:bg-red-500">Logout</button>
                 </div>
             </div>
         </div>
