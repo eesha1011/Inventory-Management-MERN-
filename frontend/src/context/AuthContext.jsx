@@ -6,11 +6,11 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
     const [user, setUser] = useState(null);
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     useEffect(() => {
         const savedUser = localStorage.getItem("user");
-        const accessToken = localStorage.getItem("accessToekn");
+        const accessToken = localStorage.getItem("accessToken");
         if(savedUser && accessToken) {
             setUser(JSON.parse(savedUser));
         }
@@ -22,7 +22,9 @@ export const AuthProvider = ({children}) => {
             setUser(res.data.user);
             localStorage.setItem("user", JSON.stringify(res.data.user));
             localStorage.setItem("accessToken", res.data.accessToken);
-            navigate("/");
+
+            return res.data.user;
+            // navigate("/");
         } catch (error) {
             throw error;
         }
@@ -31,12 +33,12 @@ export const AuthProvider = ({children}) => {
     const logout = () => {
         setUser(null);
         localStorage.removeItem("user");
-        localStorage.removeItem("token");
-        navigate("/login");
+        localStorage.removeItem("accessToken");
+        // navigate("/login");
     }
 
     return (
-        <AuthContext.Provider value={{user, login, logout}}>
+        <AuthContext.Provider value={{user, setUser, login, logout}}>
             {children}
         </AuthContext.Provider>
     )
