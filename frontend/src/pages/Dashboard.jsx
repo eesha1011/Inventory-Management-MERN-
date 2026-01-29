@@ -12,6 +12,7 @@ import ExpenseSummary from "../components/dashboard/ExpensesSummary";
 import CustomerExpenses from "../components/dashboard/CustomerExpenses";
 import DuesPendingOrders from "../components/dashboard/DuesPendingOrders";
 import SalesDiscount from "../components/dashboard/SalesDiscount";
+import { getDashboardStats } from "../services/dashboardService";
 
 const Dashboard = () => {
 
@@ -19,11 +20,25 @@ const Dashboard = () => {
     const [usersCount, setUsersCount] = useState(0);
 
     useEffect(() => {
-        const products = JSON.parse(localStorage.getItem("products")) || [];
-        const users = JSON.parse(localStorage.getItem("users")) || [];
+        const fetchDashboardStats = async () => {
+            try {
+                const data = await getDashboardStats();
+                console.log("Dashboard API data:", data);
+                setProductsCount(data.productsCount);
+                setUsersCount(data.usersCount);
+            } catch (error) {
+                console.error("Dashboard stats error", error);
+                
+            }
+        }
 
-        setProductsCount(products.length);
-        setUsersCount(users.length);
+        fetchDashboardStats();
+
+        // const products = JSON.parse(localStorage.getItem("products")) || [];
+        // const users = JSON.parse(localStorage.getItem("users")) || [];
+        // setProductsCount(products.length);
+        // setUsersCount(users.length);
+
     }, []);
 
     return (

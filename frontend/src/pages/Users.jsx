@@ -5,6 +5,7 @@ import UsersTable from "../components/users/UsersTable";
 import DashboardLayout from "../layouts/DashboardLayout";
 import ConfirmModal from "../components/ConfirmModal";
 import { SearchContext } from "../context/SearchContext";
+import { getUsers } from "../services/userApi";
 
 
 const initialUsers = [
@@ -14,10 +15,13 @@ const initialUsers = [
 
 const Users = () => {
 
-    const [users, setUsers] = useState(() => {
-            const saved = localStorage.getItem("users");
-            return saved ? JSON.parse(saved) : initialUsers;
-    });
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    // const [users, setUsers] = useState(() => {
+    //         const saved = localStorage.getItem("users");
+    //         return saved ? JSON.parse(saved) : initialUsers;
+    // });
     
     const [editUser, setEditUser] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -28,26 +32,40 @@ const Users = () => {
     const [selectedUserId, setSelectedUserId] = useState(null);
 
     useEffect(() => {
-        localStorage.setItem("users", JSON.stringify(users));
+        const fetchUsers = async () => {
+            try {
+                const data = await getUsers();
+                console.log(("BACKEND USERS 👉", data));
+                setUsers(data);
+            } catch (error) {
+                console.error("Users etch error", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchUsers();
+        // localStorage.setItem("users", JSON.stringify(users));
         // console.log("USERS STATE:", users);  
-    }, [users]);
+    
+    }, []);
 
     const handleSaveUser = (user) => {
         if (editUser) {
-            setUsers(users.map(u => u.id === user.id ? user : u));
+            setUsers(users.map(u => u._id === user._id ? user : u));
         } else {
-            setUsers([...users, { ...user, id: Date.now(), status: "Active" }]);
+            setUsers([...users, { ...user, _id: Date.now(), status: "Active" }]);
         }
         setShowModal(false);
         setEditUser(null);
     }
 
     const handleToggleStatus = (id) => {
-        setUsers(users.map(u => u.id === id ? {...u, status: u.status === "Active" ? "Blocked" : "Active"} : u));
+        setUsers(users.map(u => u._id === id ? {...u, status: u.status === "Active" ? "Blocked" : "Active"} : u));
     }
 
     // const handleDelete = (id) => {
-    //     setUsers(users.filter(u => u.id !== id));
+    //     setUsers(users.filter(u => u._id !== id));
     // }
 
     const handleDeleteClick = (id) => {
@@ -56,7 +74,7 @@ const Users = () => {
     }
 
     const confirmDelete = () => {
-        setUsers(users.filter(u => u.id !== selectedUserId));
+        setUsers(users.filter(u => u._id !== selectedUserId));
         setShowConfirm(false);
         setSelectedUserId(null);
     }
