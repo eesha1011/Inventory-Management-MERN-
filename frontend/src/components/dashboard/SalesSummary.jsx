@@ -24,19 +24,18 @@ const SalesSummary = () => {
   useEffect(() => {
     const fetchSalesSummary = async () => {
       try {
-        const res = await getSalesSummaryApi();
-        setChartData(res.data.chart);
+        const res = await getSalesSummaryApi(type);
+        setChartData(res.chart);
         setSummary({
-          totalSales: res.data.totalSales,
-          growth: res.data.growth,
-          highestSalesDate: res.data.highestSalesDate,
+          totalSales: res.totalSales,
+          growth: res.growth,
+          highestSalesDate: res.highestSalesDate,
         });
       } catch (error) {
         console.error("Sales summary error", error);
       }
-      
-      fetchSalesSummary();
     }
+    fetchSalesSummary();
   }, [type]);
 
   return (
