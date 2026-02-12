@@ -45,7 +45,7 @@ export class DashboardService {
     async getSalesSummary(type: 'weekly' | 'monthly') {
         const products = await this.productModel.find();
         const chart: Record<string, number> = {};
-        let totaSales = 0;
+        let totalSales = 0;
 
         products.forEach(product => {
             const date = new Date(product.createdAt);
@@ -53,7 +53,7 @@ export class DashboardService {
             const label = type === 'weekly' ? `${date.getDate()}/${date.getMonth() + 1}` : `${date.getMonth() + 1}/${date.getFullYear()}`;
             
             const sales = (product.price || 0) * (product.sold || 0);
-            totaSales += sales;
+            totalSales += sales;
             chart[label] = (chart[label] || 0) + sales;
         });
 
@@ -63,7 +63,7 @@ export class DashboardService {
         }));
 
         return {
-            totaSales,
+            totalSales,
             growth: 5.48,
             hightestSalesDate: chartData.length ? chartData.sort((a, b) => b.sales - a.sales)[0].day : null,
             chart: chartData,
